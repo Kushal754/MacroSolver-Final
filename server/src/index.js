@@ -2,50 +2,61 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const sequelize = require('./config/db'); 
-const User = require('./models/User'); 
 
-// 2. Inicializamos la aplicación Express
+const sequelize = require('./config/db'); // Database connection
+
+
+
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// 3. Configuración de Middlewares básicos
-// Habilitamos CORS para que el frontend pueda hablar con el backend
+
+// We import our layered routes here
+const dashboardRoutes = require('./routes/dashboardRoutes');
+
+
 app.use(cors()); 
-// Permitimos que el servidor entienda JSON en el cuerpo de las peticiones
+
 app.use(express.json());
 
-// 4. Ruta de prueba (Health Check)
+// --- GROUP 5: Basic Health Check (Optional but professional) ---
 app.get('/api/health', (req, res) => {
   res.json({ status: 'server is running!', message: 'MacroSolver Backend API' });
 });
 
-// 5. Arrancamos el Servidor
+
+
+app.use('/api/dashboard', dashboardRoutes);
+
+
 async function startServer() {
   try {
-    // 6. Probamos la conexión con la Base de Datos
+    // 1. Verify Database Connection (Req #8)
     await sequelize.authenticate();
     console.log('✅ Base de datos SQLite conectada correctamente.');
 
-    // 7. Sincronizamos los modelos (esto creará el archivo database.sqlite)
+    // 2. Synchronize Models (Req #5, #8)
+    // Dynamic database generation.
     await sequelize.sync({ alter: true });
     console.log('✅ Modelos sincronizados con la base de datos.');
 
-    // 8. Arrancamos el servidor Express
+    // 3. Start Listening (Req #2, #4)
     app.listen(PORT, () => {
-      console.log(`🚀 Servidor backend escuchando en http://localhost:${PORT}`);
+      console.log(`🚀 Servidor backend Express escuchando en http://localhost:${PORT}`);
+      console.log(`📡 Dashboard API activated at http://localhost:${PORT}/api/dashboard`);
     });
 
   } catch (error) {
-    console.error('❌ Error al arrancar el servidor:', error);
-    process.exit(1); // Cerramos el servidor si algo falla catastróficamente
+    console.error('❌ Error crítico al arrancar el servidor:', error);
+    process.exit(1);
   }
 }
 
-// Manejamos la ejecución asíncrona de forma correcta (CommonJS style)
+// Group 8: Proper async handling (CommonJS style)
 startServer().then(() => {
-  
+  // Main loop active
 }).catch(err => {
-  console.error('❌ Error crítico al arrancar el servidor:', err);
+  console.error('❌ Unhandled boot error:', err);
   process.exit(1);
 });
