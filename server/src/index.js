@@ -2,7 +2,8 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const sequelize = require('./config/db'); // Importamos la conexión a la DB
+const sequelize = require('./config/db'); 
+const User = require('./models/User'); 
 
 // 2. Inicializamos la aplicación Express
 const app = express();
