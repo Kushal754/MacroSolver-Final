@@ -1,37 +1,30 @@
 import './index.css';
-import { useState, useEffect } from 'react'; 
+// 1. Importamos el componente Layout que acabamos de crear y arreglar
+import Layout from './components/ui/Layout'; 
 
 function App() {
+  // 2. ¡Ya no necesitamos theme state, ni efectos, ni iconos aquí!
+  //    El componente Layout se encarga de todo eso.
   
-  const [theme, setTheme] = useState('dark');
-
-  
-  useEffect(() => {
-    const root = window.document.documentElement; // Accedemos a la etiqueta <html>
-    if (theme === 'dark') {
-      root.classList.add('dark'); 
-    } else {
-      root.classList.remove('dark'); 
-    }
-  }, [theme]);
-
-  const toggleTheme = () => {
-    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
-  };
-
   return (
-    <div className="flex h-screen items-center justify-center bg-background text-foreground transition-colors duration-300">
-      <h1 className="text-4xl font-bold p-10 border rounded-lg bg-card text-center relative">
-        Hello, MacroSolver!
-        {/* Botón para alternar el tema */}
-        <button
-          onClick={toggleTheme}
-          className="absolute -top-12 right-0 p-2 border rounded-full bg-secondary text-secondary-foreground hover:bg-secondary/80 text-xl"
-        >
-          {theme === 'dark' ? '☀️' : '🌙'}
-        </button>
-      </h1>
-    </div>
+    // 3. Usamos el componente Layout. Le pasamos el título de la página actual.
+    <Layout currentPageTitle="Dashboard">
+      
+      {/* 4. Todo lo que pongamos AQUÍ DENTRO se pasará como 'children' al Layout
+             y aparecerá en el área de contenido principal (derecha). */}
+      
+      <div className="flex h-full items-center justify-center border-2 border-dashed border-border rounded-2xl bg-secondary/30">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold p-10 border rounded-lg bg-card shadow-lg">
+            Hello, MacroSolver!
+          </h1>
+          <p className="mt-4 text-muted-foreground text-lg">
+            La refactorización orgánica ha funcionado. ¡Ahora el código está súper limpio y profesional!
+          </p>
+        </div>
+      </div>
+      
+    </Layout>
   );
 }
 
