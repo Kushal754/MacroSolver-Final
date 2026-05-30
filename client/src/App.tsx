@@ -1,18 +1,15 @@
 import './index.css';
-import Layout from './components/ui/Layout'; 
-// 1. Importamos la nueva página que acabamos de crear
-import Dashboard from './pages/Dashboard'; 
+import Layout from './components/ui/Layout';
+import { Outlet } from 'react-router-dom';
 
 function App() {
   return (
-    // 2. Mantenemos el título "Dashboard"
-    <Layout currentPageTitle="Dashboard">
+    // Cambiamos el título a algo genérico para que no diga "Dashboard" cuando estés en la despensa
+    <Layout currentPageTitle="MacroSolver">
       
-      {/* 3. ¡Sustituimos TODO el placeholder viejo por el componente Dashboard!
-             
-             */}
-      
-      <Dashboard />
+      {/* Sustituimos <Dashboard /> por <Outlet />. 
+          Esto le dice a React que inyecte aquí la Despensa o el Dashboard dependiendo de la URL */}
+      <Outlet />
       
     </Layout>
   );
