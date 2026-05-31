@@ -1,10 +1,15 @@
 // server/src/controllers/pantryController.js
 const fs = require('fs');
 const path = require('path');
-const openai = require('../services/openaiService'); // Importamos el servicio de OpenAI configurado para GitHub
+const OpenAI = require('openai'); // Importación directa de la librería
 
-// Función profesional para escanear imagen con IA Real a través de GitHub Models (Req #12 IA Real)
-// POST /api/pantry/scan
+
+const openai = new OpenAI({
+  baseURL: "https://models.inference.ai.azure.com",
+  apiKey: process.env.OPENAI_API_KEY
+});
+
+
 exports.scanPantryImage = async (req, res) => {
   try {
     console.log('📡 Backend: Petición POST /api/pantry/scan recibida...');
@@ -24,12 +29,11 @@ exports.scanPantryImage = async (req, res) => {
 
     // 3. LLAMADA REAL A LA IA A TRAVÉS DE GITHUB MODELS
     // Definimos el modelo que queremos usar del catálogo de GitHub.
-    
     const MODEL_NAME = "gpt-4o"; 
 
     console.log(`🧠 Iniciando análisis con IA Real (${MODEL_NAME}) a través de GitHub Models...`);
     
-    // Usamos el cliente 'openai' que configuramos en openaiService.js
+    // Usamos el cliente 'openai' blindado hacia Azure
     const response = await openai.chat.completions.create({
       model: MODEL_NAME,
       messages: [

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { ReactNode } from 'react'; 
-
+// 1. Importamos Link y useLocation para la navegación profesional
+import { Link, useLocation } from 'react-router-dom'; 
 
 import { BrainCircuit, LayoutDashboard, Utensils, Users, ChevronDown, UserCircle, LogOut, Sun, Moon } from 'lucide-react';
 
@@ -12,6 +13,9 @@ interface LayoutProps {
 function Layout({ children, currentPageTitle }: LayoutProps) {
   
   const [theme, setTheme] = useState('dark');
+  // 2. Usamos la ubicación actual para iluminar el botón correcto del menú
+  const location = useLocation(); 
+
   useEffect(() => {
     const root = window.document.documentElement;
     if (theme === 'dark') { root.classList.add('dark'); } 
@@ -21,9 +25,9 @@ function Layout({ children, currentPageTitle }: LayoutProps) {
 
   // --- ESTRUCTURA DE NAVEGACIÓN ---
   const navItems = [
-    { name: 'Dashboard', icon: LayoutDashboard, href: '#dashboard' },
-    { name: 'Meal Plan', icon: Utensils, href: '#mealplan' },
-    { name: 'Users', icon: Users, href: '#users' },
+    { name: 'Dashboard', icon: LayoutDashboard, href: '/' },
+    { name: 'Dispensador', icon: Utensils, href: '/pantry' }, // <--- Cambiado el nombre y la ruta
+    { name: 'Users', icon: Users, href: '/users' },
   ];
 
   return (
@@ -41,16 +45,22 @@ function Layout({ children, currentPageTitle }: LayoutProps) {
         
         {/* Enlaces de Navegación */}
         <nav className="flex-1 space-y-2">
-          {navItems.map((item, index) => (
-            <a 
-              key={index} 
-              href={item.href} 
-              className={`flex items-center gap-3.5 px-4 py-3 rounded-lg text-lg font-medium transition-colors ${item.name === currentPageTitle ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-secondary-foreground'}`}
-            >
-              <item.icon className="h-6 w-6" />
-              {item.name}
-            </a>
-          ))}
+          {navItems.map((item, index) => {
+            // Comprobamos si la ruta actual coincide con la ruta del botón
+            const isActive = location.pathname === item.href;
+
+            return (
+              // 3. Sustituimos la etiqueta <a> por <Link> de React Router
+              <Link 
+                key={index} 
+                to={item.href} 
+                className={`flex items-center gap-3.5 px-4 py-3 rounded-lg text-lg font-medium transition-colors ${isActive ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-secondary-foreground'}`}
+              >
+                <item.icon className="h-6 w-6" />
+                {item.name}
+              </Link>
+            );
+          })}
         </nav>
       </aside>
 
