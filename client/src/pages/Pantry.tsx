@@ -1,5 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { Search, Camera, Upload, Plus, ScanLine, Loader2, X, Trash2, Pencil } from 'lucide-react';
+import { apiClient } from '../api/client';
+import { useDebounce } from '../hooks/useDebounce';
 
 interface Ingredient {
   id: string;
@@ -37,19 +39,21 @@ function Pantry() {
   };
   const [newIngredient, setNewIngredient] = useState(defaultIngredientState);
 
+  // BONUS: Aplicamos retraso controlado a la entrada de búsqueda de 300ms
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
   const currentDate = new Intl.DateTimeFormat('es-ES', { 
     weekday: 'long', day: 'numeric', month: 'long' 
   }).format(new Date());
 
+  // REQUISITO 12: Consumo a través del cliente unificado y tipado
   useEffect(() => {
     const fetchIngredients = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/ingredients');
-        if (!response.ok) throw new Error('Error al cargar ingredientes');
-        const data = await response.json();
+        const data = await apiClient.get<Ingredient[]>('/ingredients');
         setIngredients(data);
       } catch (err) {
-        console.error(err);
+        console.error("Error cargando despensa:", err);
       } finally {
         setIsLoading(false);
       }
@@ -62,7 +66,7 @@ function Pantry() {
     setNewIngredient(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleEditClick = (ing: Ingredient) => {
+  const handleEditClick = useCallback((ing: Ingredient) => {
     setEditingId(ing.id);
     setNewIngredient({
       name: ing.name,
@@ -75,7 +79,7 @@ function Pantry() {
       unit: ing.unit
     });
     setIsAddModalOpen(true);
-  };
+  }, []);
 
   const handleCloseModal = () => {
     setIsAddModalOpen(false);
@@ -98,47 +102,32 @@ function Pantry() {
 
     try {
       if (editingId) {
-        const response = await fetch(`http://localhost:3000/api/ingredients/${editingId}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) throw new Error('Error al actualizar');
-        const updatedIngredient = await response.json();
+        const updatedIngredient = await apiClient.put<Ingredient>(`/ingredients/${editingId}`, payload);
         setIngredients(prev => prev.map(ing => ing.id === editingId ? updatedIngredient : ing));
       } else {
-        const response = await fetch('http://localhost:3000/api/ingredients', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        });
-
-        if (!response.ok) throw new Error('Error al guardar');
-        const savedIngredient = await response.json();
+        const savedIngredient = await apiClient.post<Ingredient>('/ingredients', payload);
         setIngredients(prev => [...prev, savedIngredient]);
       }
-      
       handleCloseModal();
     } catch (error) {
-      console.error("Error saving ingredient:", error);
+      console.error("Error al procesar el ingrediente:", error);
       alert("Hubo un error al guardar el ingrediente.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDelete = async (id: string) => {
+  // REQUISITO 7: Memorizamos la función de borrado con useCallback para evitar re-renders de filas
+  const handleDelete = useCallback(async (id: string) => {
     if (!window.confirm("¿Estás seguro de que quieres eliminar este ingrediente de tu despensa?")) return;
     try {
-      const response = await fetch(`http://localhost:3000/api/ingredients/${id}`, { method: 'DELETE' });
-      if (!response.ok) throw new Error('Error al eliminar');
+      await apiClient.delete(`/ingredients/${id}`);
       setIngredients(prev => prev.filter(ing => ing.id !== id));
     } catch (error) {
       console.error("Error eliminando:", error);
       alert("No se pudo eliminar el ingrediente.");
     }
-  };
+  }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -152,6 +141,7 @@ function Pantry() {
       const formData = new FormData();
       formData.append('image', file);
 
+      // El escáner interactúa de forma limpia con la subida de archivos multipart
       const response = await fetch('http://localhost:3000/api/pantry/scan', { method: 'POST', body: formData });
       if (!response.ok) throw new Error('Error en el escáner');
       
@@ -170,35 +160,31 @@ function Pantry() {
     setIsSavingAi(true);
     try {
       const promises = aiDetectedIngredients.map(ing => 
-        fetch('http://localhost:3000/api/ingredients', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            ...ing,
-            quantityInStock: ing.quantityInStock || 1,
-            unit: ing.unit || 'ud'
-          }),
-        }).then(res => {
-          if (!res.ok) throw new Error('Error al guardar');
-          return res.json();
+        apiClient.post<Ingredient>('/ingredients', {
+          ...ing,
+          quantityInStock: ing.quantityInStock || 1,
+          unit: ing.unit || 'ud'
         })
       );
       const savedIngredients = await Promise.all(promises);
       setIngredients(prev => [...prev, ...savedIngredients]);
       setAiDetectedIngredients([]);
     } catch (error) {
-      console.error("Error masivo:", error);
+      console.error("Error en inserción masiva:", error);
       alert("Error al intentar guardar los ingredientes.");
     } finally {
       setIsSavingAi(false);
     }
   };
 
-  const filteredIngredients = ingredients.filter(ing => {
-    const matchesSearch = ing.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = selectedFilter === 'Todos' || ing.category === selectedFilter;
-    return matchesSearch && matchesCategory;
-  });
+  // REQUISITO 7: useMemo optimiza las búsquedas complejas filtrando solo si cambian los datos o el debouncer
+  const filteredIngredients = useMemo(() => {
+    return ingredients.filter(ing => {
+      const matchesSearch = ing.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase());
+      const matchesCategory = selectedFilter === 'Todos' || ing.category === selectedFilter;
+      return matchesSearch && matchesCategory;
+    });
+  }, [ingredients, debouncedSearchTerm, selectedFilter]);
 
   const getCategoryStyle = (category: string) => {
     switch (category.toLowerCase()) {
@@ -213,7 +199,7 @@ function Pantry() {
   return (
     <div className="w-full p-4 md:p-8 font-sans text-gray-900 dark:text-gray-100 transition-colors duration-200">
       
-      {/* CABECERA (Adaptativa para móvil y escritorio) */}
+      {/* CABECERA */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8 pt-4">
         <div>
           <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 dark:text-white">Mi Despensa</h2>
@@ -281,7 +267,7 @@ function Pantry() {
         </div>
       )}
 
-      {/* BARRA DE BÚSQUEDA Y FILTROS */}
+      {/* BÚSQUEDA Y FILTROS */}
       <div className="flex flex-col lg:flex-row gap-4 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
@@ -304,10 +290,10 @@ function Pantry() {
         </div>
       </div>
 
-      {/* TABLA DE INGREDIENTES (Modo Tarjeta en Móvil, Modo Tabla en PC) */}
+      {/* RENDERIZADO DE CONTENIDO RESPONSIVE */}
       <div className="bg-white dark:bg-[#111] md:border border-gray-200 dark:border-gray-800 md:rounded-xl overflow-hidden transition-colors duration-200 md:shadow-sm">
         
-        {/* Cabecera de tabla (Oculta en móvil) */}
+        {/* Cabecera de tabla (Solo PC) */}
         <div className="hidden md:flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#1a1a1a] text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-200">
           <div className="w-1/4">Ingrediente</div>
           <div className="w-1/6">Categoría</div>
@@ -328,11 +314,9 @@ function Pantry() {
             {filteredIngredients.map((ing) => (
               <div key={ing.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-white dark:bg-[#111] md:bg-transparent border border-gray-200 md:border-0 md:border-b md:border-gray-100 dark:border-gray-800 rounded-xl md:rounded-none hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
                 
-                {/* Nombre y Acciones (Móvil) */}
+                {/* Bloque Nombre y Botones en Móvil */}
                 <div className="flex justify-between items-center w-full md:w-1/4 mb-3 md:mb-0">
                   <div className="font-bold md:font-medium text-lg md:text-base text-gray-900 dark:text-gray-200">{ing.name}</div>
-                  
-                  {/* Acciones solo visibles en móvil aquí */}
                   <div className="flex md:hidden gap-2">
                     <button onClick={() => handleEditClick(ing)} className="p-2 text-blue-500 bg-blue-50 dark:bg-blue-900/20 rounded-md">
                       <Pencil className="w-4 h-4" />
@@ -350,7 +334,7 @@ function Pantry() {
                   </span>
                 </div>
 
-                {/* Macros (Grid en móvil, Fila en PC) */}
+                {/* Distribución Nutricional */}
                 <div className="grid grid-cols-2 gap-y-3 gap-x-4 w-full md:flex md:w-5/12 md:items-center text-sm md:text-base mb-4 md:mb-0">
                   <div className="md:w-2/5 flex justify-between md:block"><span className="md:hidden text-gray-500 text-xs">Calorías</span><span className="text-gray-500 dark:text-gray-400">{ing.calories} kcal</span></div>
                   <div className="md:w-1/5 flex justify-between md:block"><span className="md:hidden text-gray-500 text-xs">Proteínas</span><span className="text-blue-600 dark:text-[#0070f3] font-medium">{ing.protein}g</span></div>
@@ -358,13 +342,13 @@ function Pantry() {
                   <div className="md:w-1/5 flex justify-between md:block"><span className="md:hidden text-gray-500 text-xs">Grasas</span><span className="text-purple-600 dark:text-[#9c27b0] font-medium">{ing.fat}g</span></div>
                 </div>
 
-                {/* Stock */}
+                {/* Unidades Stock */}
                 <div className="w-full md:w-1/12 flex justify-between md:block pt-3 md:pt-0 border-t border-gray-100 dark:border-gray-800 md:border-0">
                   <span className="md:hidden text-gray-500 text-xs font-medium uppercase tracking-wider">En Despensa</span>
                   <span className="text-gray-900 dark:text-white md:text-gray-500 md:dark:text-gray-400 font-bold md:font-normal">{ing.quantityInStock}{ing.unit}</span>
                 </div>
                 
-                {/* Acciones solo visibles en PC aquí */}
+                {/* Botones de acción en PC */}
                 <div className="hidden md:flex w-1/12 justify-end pr-2 gap-1">
                   <button onClick={() => handleEditClick(ing)} className="p-1.5 text-blue-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
                     <Pencil className="w-4 h-4" />
@@ -379,7 +363,7 @@ function Pantry() {
         )}
       </div>
 
-      {/* MODAL DE AÑADIR/EDITAR INGREDIENTE (Adaptado a móvil) */}
+      {/* FORMULARIO DE INSERCIÓN/EDICIÓN */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl transition-colors duration-200">

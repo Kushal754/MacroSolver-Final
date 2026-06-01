@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import type { ReactNode } from 'react'; 
-import { Link, useLocation } from 'react-router-dom'; 
+import { Link, useLocation, Outlet } from 'react-router-dom';
 
 import { 
   LayoutDashboard, 
@@ -19,18 +19,11 @@ interface LayoutProps {
   currentPageTitle?: string; // Lo dejamos opcional por si el router lo envía
 }
 
-function Layout({ children }: LayoutProps) {
+function Layout() {
   
-  const [theme, setTheme] = useState('dark');
+  // Consumimos el estado y la función para alternarlo desde nuestro Contexto Global
+  const { theme, toggleTheme } = useTheme();
   const location = useLocation(); 
-
-  useEffect(() => {
-    const root = window.document.documentElement;
-    if (theme === 'dark') { root.classList.add('dark'); } 
-    else { root.classList.remove('dark'); }
-  }, [theme]);
-  
-  const toggleTheme = () => setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
 
   // --- ESTRUCTURA DE NAVEGACIÓN ---
   const navItems = [
@@ -121,7 +114,7 @@ function Layout({ children }: LayoutProps) {
 
         {/* 3. ÁREA DE CONTENIDO (Padding inferior extra en móvil para que la barra no tape el contenido) */}
         <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-black pb-20 md:pb-0">
-          {children}
+          <Outlet />
         </main>
       </div>
 
