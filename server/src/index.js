@@ -18,6 +18,7 @@ const ingredientsRoutes = require('./routes/ingredientsRoutes');
 const pantryRoutes = require('./routes/pantryRoutes'); 
 const macroRoutes = require('./routes/macroRoutes');
 const trainerRoutes = require('./routes/trainerRoutes');
+const batchRoutes = require('./routes/batchRoutes');
 
 
 app.use(cors()); 
@@ -37,6 +38,7 @@ app.use('/api/ingredients', ingredientsRoutes);
 app.use('/api/pantry', pantryRoutes); 
 app.use('/api/macros', macroRoutes);
 app.use('/api/trainer', trainerRoutes);
+app.use('/api/batch', batchRoutes);
 
 
 async function startServer() {

@@ -55,11 +55,11 @@ function Entrenador() {
   // --- VISTA 1: CONFIGURACIÓN ---
   if (view === 'config') {
     return (
-      <div className="w-full p-8 font-sans text-gray-900 dark:text-gray-100 transition-colors duration-200">
+      <div className="w-full p-4 md:p-8 font-sans text-gray-900 dark:text-gray-100 transition-colors duration-200">
         
         <div className="flex justify-between items-start mb-8 pt-4">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-1">Entrenador IA</h2>
+            <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white tracking-tight mb-1">Entrenador IA</h2>
             <p className="text-gray-500 dark:text-gray-400 capitalize">{currentDate}</p>
           </div>
           <button className="flex items-center gap-2 px-4 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-md font-medium hover:bg-red-500/20 transition-colors">

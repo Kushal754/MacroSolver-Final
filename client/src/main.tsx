@@ -1,27 +1,28 @@
 // client/src/main.tsx
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom' // Importamos RouterProvider y createBrowserRouter
+import { createBrowserRouter, RouterProvider } from 'react-router-dom' 
 import App from './App.tsx'
 import './index.css'
 import Dashboard from './pages/Dashboard.tsx'
-import Pantry from './pages/Pantry.tsx' // <--- Importamos el componente de Despensa
+import Pantry from './pages/Pantry.tsx' 
 import MacroSolver from './pages/MacroSolver.tsx'
 import Entrenador from './pages/Entrenador';
+import BatchCooking from './pages/BatchCooking';
 
-// Configuración profesional de rutas (Req #5 Organización)
+
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />, // App actúa como el Layout principal
+    element: <App />, 
     children: [
       {
         path: "/",
-        element: <Dashboard />, // Ruta por defecto: /
+        element: <Dashboard />, 
       },
       {
-        path: "pantry", // <--- Definimos la ruta /pantry Req #10 Parity Verified
-        element: <Pantry />, // <--- Que cargue el componente Pantry
+        path: "pantry", 
+        element: <Pantry />, 
       },
 
       {
@@ -32,6 +33,11 @@ const router = createBrowserRouter([
       {
       path: "entrenador",
       element: <Entrenador />,
+      },
+
+      {
+      path: "batch",
+      element: <BatchCooking />,
       },
     ],
   },

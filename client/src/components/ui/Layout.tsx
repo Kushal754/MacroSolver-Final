@@ -16,10 +16,9 @@ import {
 
 interface LayoutProps {
   children: ReactNode;
-  currentPageTitle?: string; // Lo dejamos opcional por si el router lo envía, pero no lo usamos para no generar error
+  currentPageTitle?: string; // Lo dejamos opcional por si el router lo envía
 }
 
-// Eliminamos currentPageTitle de aquí para que ESLint no se queje de variable sin usar
 function Layout({ children }: LayoutProps) {
   
   const [theme, setTheme] = useState('dark');
@@ -43,10 +42,10 @@ function Layout({ children }: LayoutProps) {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-[#000000] text-gray-900 dark:text-gray-100 flex transition-colors duration-300 font-sans">
+    <div className="min-h-screen bg-gray-50 dark:bg-[#000000] text-gray-900 dark:text-gray-100 flex flex-col md:flex-row transition-colors duration-300 font-sans">
       
-      {/* 1. SIDEBAR */}
-      <aside className="w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-4 flex flex-col">
+      {/* 1. SIDEBAR (Solo Escritorio: Oculto en móvil, visible desde "md") */}
+      <aside className="hidden md:flex w-64 border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-[#0a0a0a] p-4 flex-col h-screen sticky top-0">
         
         {/* Logo v0 */}
         <div className="flex items-center gap-3 mb-8 p-2">
@@ -64,7 +63,7 @@ function Layout({ children }: LayoutProps) {
           Navegación
         </div>
 
-        {/* Enlaces de Navegación */}
+        {/* Enlaces de Navegación (Escritorio) */}
         <nav className="flex-1 space-y-1">
           {navItems.map((item, index) => {
             const isActive = location.pathname === item.href;
@@ -90,11 +89,21 @@ function Layout({ children }: LayoutProps) {
         </nav>
       </aside>
 
-      {/* CONTENIDO PRINCIPAL (Derecha) */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      {/* CONTENIDO PRINCIPAL */}
+      <div className="flex-1 flex flex-col min-h-screen overflow-hidden relative">
         
-        {/* 2. HEADER */}
-        <header className="h-16 border-b border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-[#0a0a0a]/50 backdrop-blur-md flex items-center justify-end px-8">
+        {/* 2. HEADER (Adaptativo) */}
+        <header className="h-16 border-b border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-[#0a0a0a]/50 backdrop-blur-md flex items-center justify-between md:justify-end px-4 md:px-8 sticky top-0 z-40">
+          
+          {/* Logo en móvil (Oculto en escritorio para no duplicar el del sidebar) */}
+          <div className="flex md:hidden items-center gap-2">
+            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#0070f3] text-white">
+              <Zap className="h-5 w-5 fill-current" />
+            </div>
+            <h1 className="text-lg font-bold tracking-tight text-gray-900 dark:text-white">MacroSolver</h1>
+          </div>
+
+          {/* Botones de Tema y Usuario */}
           <div className="flex items-center gap-4">
             <button 
               onClick={toggleTheme}
@@ -110,11 +119,40 @@ function Layout({ children }: LayoutProps) {
           </div>
         </header>
 
-        {/* 3. ÁREA DE CONTENIDO */}
-        <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-black">
+        {/* 3. ÁREA DE CONTENIDO (Padding inferior extra en móvil para que la barra no tape el contenido) */}
+        <main className="flex-1 overflow-y-auto bg-gray-50 dark:bg-black pb-20 md:pb-0">
           {children}
         </main>
       </div>
+
+      {/* 4. BARRA DE NAVEGACIÓN INFERIOR (Solo Móvil: Oculta en "md") */}
+      <nav className="md:hidden fixed bottom-0 left-0 w-full bg-white/95 dark:bg-[#0a0a0a]/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-800 z-50 pb-safe">
+        <div className="flex justify-around items-center h-16 px-2">
+          {navItems.map((item, index) => {
+            const isActive = location.pathname === item.href;
+
+            return (
+              <Link
+                key={index}
+                to={item.href}
+                className={`flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors ${
+                  isActive 
+                    ? 'text-blue-600 dark:text-blue-500' 
+                    : 'text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-200'
+                }`}
+              >
+                <div className={`p-1 rounded-full ${isActive ? 'bg-blue-50 dark:bg-blue-500/10' : ''}`}>
+                  <item.icon className="h-5 w-5" />
+                </div>
+                <span className="text-[10px] font-semibold leading-none text-center">
+                  {item.name}
+                </span>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+
     </div>
   );
 }

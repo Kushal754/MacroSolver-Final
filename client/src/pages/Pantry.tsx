@@ -211,23 +211,27 @@ function Pantry() {
   };
 
   return (
-    <div className="w-full p-8 font-sans text-gray-900 dark:text-gray-100 transition-colors duration-200">
+    <div className="w-full p-4 md:p-8 font-sans text-gray-900 dark:text-gray-100 transition-colors duration-200">
       
-      <div className="flex justify-between items-end mb-8 pt-4">
+      {/* CABECERA (Adaptativa para móvil y escritorio) */}
+      <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4 mb-8 pt-4">
         <div>
-          <h2 className="text-3xl font-semibold text-gray-900 dark:text-white">Mi Despensa</h2>
-          <p className="text-gray-500 dark:text-gray-400 mt-2 capitalize">{currentDate} • {ingredients.length} ingredientes registrados</p>
+          <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 dark:text-white">Mi Despensa</h2>
+          <p className="text-gray-500 dark:text-gray-400 mt-1 md:mt-2 text-sm md:text-base capitalize">
+            {currentDate} <span className="hidden md:inline">•</span> <br className="md:hidden"/> {ingredients.length} ingredientes registrados
+          </p>
         </div>
         <button 
           onClick={() => { setEditingId(null); setNewIngredient(defaultIngredientState); setIsAddModalOpen(true); }}
-          className="flex items-center gap-2 px-4 py-2.5 bg-[#0070f3] text-white rounded-md font-medium hover:bg-blue-600 transition shadow-[0_0_15px_rgba(0,112,243,0.3)]"
+          className="flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0070f3] text-white rounded-md font-medium hover:bg-blue-600 transition shadow-[0_0_15px_rgba(0,112,243,0.3)] w-full md:w-auto"
         >
           <Plus className="w-5 h-5" />
           Añadir ingrediente
         </button>
       </div>
 
-      <div className="border border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-10 flex flex-col items-center justify-center text-center mb-8 bg-gray-50 dark:bg-[#111] relative overflow-hidden transition-colors duration-200">
+      {/* ESCÁNER IA */}
+      <div className="border border-dashed border-gray-300 dark:border-gray-700 rounded-xl p-6 md:p-10 flex flex-col items-center justify-center text-center mb-8 bg-gray-50 dark:bg-[#111] relative overflow-hidden transition-colors duration-200">
         {isScanning && (
           <div className="absolute inset-0 bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-sm flex flex-col items-center justify-center z-10 transition-colors duration-200">
             <Loader2 className="w-10 h-10 text-blue-500 animate-spin mb-4" />
@@ -240,22 +244,21 @@ function Pantry() {
         </div>
         <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">Fridge Vision — Escáner de Nevera</h3>
         <p className="text-gray-500 dark:text-gray-400 text-sm mb-6 max-w-md">Arrastra una foto o haz clic para subir. La IA detectará los ingredientes automáticamente.</p>
-        <div className="flex gap-4">
-          <button onClick={() => fileInputRef.current?.click()} className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200">
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <button onClick={() => fileInputRef.current?.click()} className="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200">
             <Upload className="w-4 h-4" /> Subir foto
           </button>
-          
-          {/* BOTÓN DE CÁMARA RESTAURADO PARA ELIMINAR EL AVISO */}
-          <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200">
+          <button className="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-md text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:border-gray-400 dark:hover:border-gray-500 transition-colors duration-200">
             <Camera className="w-4 h-4" /> Usar cámara
           </button>
         </div>
       </div>
 
+      {/* INGREDIENTES DETECTADOS POR IA */}
       {aiDetectedIngredients.length > 0 && (
-        <div className="mb-8 p-6 bg-blue-50 dark:bg-[#111] border border-blue-200 dark:border-blue-500/30 rounded-xl transition-colors duration-200">
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Detectados por la IA (Pendientes de guardar)</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="mb-8 p-4 md:p-6 bg-blue-50 dark:bg-[#111] border border-blue-200 dark:border-blue-500/30 rounded-xl transition-colors duration-200">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-4">Detectados por la IA (Pendientes)</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
              {aiDetectedIngredients.map((ing, i) => (
                 <div key={i} className="bg-white dark:bg-[#1a1a1a] p-4 rounded-lg border border-gray-200 dark:border-gray-800 transition-colors duration-200">
                    <p className="font-medium text-gray-900 dark:text-white">{ing.name}</p>
@@ -268,9 +271,9 @@ function Pantry() {
                 </div>
              ))}
           </div>
-            <button 
+          <button 
             onClick={handleSaveAiIngredients} disabled={isSavingAi}
-            className="mt-4 w-full flex items-center justify-center py-2 bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500 text-white rounded-md transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            className="mt-4 w-full flex items-center justify-center py-3 bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500 text-white rounded-md transition font-medium disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSavingAi ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
             Guardar en mi despensa
@@ -278,19 +281,20 @@ function Pantry() {
         </div>
       )}
 
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
+      {/* BARRA DE BÚSQUEDA Y FILTROS */}
+      <div className="flex flex-col lg:flex-row gap-4 mb-6">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-gray-500" />
           <input 
             type="text" placeholder="Buscar ingrediente..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white dark:bg-[#111] border border-gray-300 dark:border-gray-800 rounded-md py-2 pl-10 pr-4 text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 dark:focus:border-gray-600 transition-colors duration-200"
+            className="w-full bg-white dark:bg-[#111] border border-gray-300 dark:border-gray-800 rounded-md py-2.5 pl-10 pr-4 text-gray-900 dark:text-white focus:outline-none focus:border-blue-500 dark:focus:border-gray-600 transition-colors duration-200"
           />
         </div>
         <div className="flex flex-wrap gap-2">
           {CATEGORIES.map(cat => (
             <button 
               key={cat} onClick={() => setSelectedFilter(cat)}
-              className={`px-4 py-1.5 rounded-md text-sm transition-colors duration-200 border ${
+              className={`px-3 md:px-4 py-1.5 rounded-md text-sm transition-colors duration-200 border ${
                 selectedFilter === cat ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-500/10 dark:text-blue-500 dark:border-blue-500/30' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50 dark:bg-[#111] dark:text-gray-400 dark:border-gray-800 dark:hover:bg-[#1a1a1a]'
               }`}
             >
@@ -300,8 +304,11 @@ function Pantry() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden transition-colors duration-200 shadow-sm">
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#1a1a1a] text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-200">
+      {/* TABLA DE INGREDIENTES (Modo Tarjeta en Móvil, Modo Tabla en PC) */}
+      <div className="bg-white dark:bg-[#111] md:border border-gray-200 dark:border-gray-800 md:rounded-xl overflow-hidden transition-colors duration-200 md:shadow-sm">
+        
+        {/* Cabecera de tabla (Oculta en móvil) */}
+        <div className="hidden md:flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-[#1a1a1a] text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider transition-colors duration-200">
           <div className="w-1/4">Ingrediente</div>
           <div className="w-1/6">Categoría</div>
           <div className="w-1/6">Calorías</div>
@@ -315,36 +322,54 @@ function Pantry() {
         {isLoading ? (
           <div className="p-8 text-center text-gray-500">Cargando despensa...</div>
         ) : filteredIngredients.length === 0 ? (
-          <div className="p-8 text-center text-gray-500">No hay ingredientes.</div>
+          <div className="p-8 text-center text-gray-500 border border-dashed md:border-none rounded-xl">No hay ingredientes.</div>
         ) : (
-          <div className="flex flex-col">
+          <div className="flex flex-col gap-4 md:gap-0">
             {filteredIngredients.map((ing) => (
-              <div key={ing.id} className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
-                <div className="w-1/4 font-medium text-gray-800 dark:text-gray-200">{ing.name}</div>
-                <div className="w-1/6">
+              <div key={ing.id} className="flex flex-col md:flex-row md:items-center justify-between p-4 bg-white dark:bg-[#111] md:bg-transparent border border-gray-200 md:border-0 md:border-b md:border-gray-100 dark:border-gray-800 rounded-xl md:rounded-none hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
+                
+                {/* Nombre y Acciones (Móvil) */}
+                <div className="flex justify-between items-center w-full md:w-1/4 mb-3 md:mb-0">
+                  <div className="font-bold md:font-medium text-lg md:text-base text-gray-900 dark:text-gray-200">{ing.name}</div>
+                  
+                  {/* Acciones solo visibles en móvil aquí */}
+                  <div className="flex md:hidden gap-2">
+                    <button onClick={() => handleEditClick(ing)} className="p-2 text-blue-500 bg-blue-50 dark:bg-blue-900/20 rounded-md">
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button onClick={() => handleDelete(ing.id)} className="p-2 text-red-500 bg-red-50 dark:bg-red-900/20 rounded-md">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Categoría */}
+                <div className="w-full md:w-1/6 mb-4 md:mb-0">
                   <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${getCategoryStyle(ing.category)}`}>
                     {ing.category}
                   </span>
                 </div>
-                <div className="w-1/6 text-gray-500 dark:text-gray-400 text-sm">{ing.calories} kcal</div>
-                <div className="w-1/12 text-blue-600 dark:text-[#0070f3] font-medium">{ing.protein}g</div>
-                <div className="w-1/12 text-green-600 dark:text-[#00c853] font-medium">{ing.carbs}g</div>
-                <div className="w-1/12 text-purple-600 dark:text-[#9c27b0] font-medium">{ing.fat}g</div>
-                <div className="w-1/12 text-gray-500 dark:text-gray-400 text-sm">{ing.quantityInStock}{ing.unit}</div>
+
+                {/* Macros (Grid en móvil, Fila en PC) */}
+                <div className="grid grid-cols-2 gap-y-3 gap-x-4 w-full md:flex md:w-5/12 md:items-center text-sm md:text-base mb-4 md:mb-0">
+                  <div className="md:w-2/5 flex justify-between md:block"><span className="md:hidden text-gray-500 text-xs">Calorías</span><span className="text-gray-500 dark:text-gray-400">{ing.calories} kcal</span></div>
+                  <div className="md:w-1/5 flex justify-between md:block"><span className="md:hidden text-gray-500 text-xs">Proteínas</span><span className="text-blue-600 dark:text-[#0070f3] font-medium">{ing.protein}g</span></div>
+                  <div className="md:w-1/5 flex justify-between md:block"><span className="md:hidden text-gray-500 text-xs">Carbos</span><span className="text-green-600 dark:text-[#00c853] font-medium">{ing.carbs}g</span></div>
+                  <div className="md:w-1/5 flex justify-between md:block"><span className="md:hidden text-gray-500 text-xs">Grasas</span><span className="text-purple-600 dark:text-[#9c27b0] font-medium">{ing.fat}g</span></div>
+                </div>
+
+                {/* Stock */}
+                <div className="w-full md:w-1/12 flex justify-between md:block pt-3 md:pt-0 border-t border-gray-100 dark:border-gray-800 md:border-0">
+                  <span className="md:hidden text-gray-500 text-xs font-medium uppercase tracking-wider">En Despensa</span>
+                  <span className="text-gray-900 dark:text-white md:text-gray-500 md:dark:text-gray-400 font-bold md:font-normal">{ing.quantityInStock}{ing.unit}</span>
+                </div>
                 
-                <div className="w-1/12 flex justify-end pr-2 gap-1">
-                  <button 
-                    onClick={() => handleEditClick(ing)}
-                    title="Editar ingrediente"
-                    className="p-1.5 text-blue-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-                  >
+                {/* Acciones solo visibles en PC aquí */}
+                <div className="hidden md:flex w-1/12 justify-end pr-2 gap-1">
+                  <button onClick={() => handleEditClick(ing)} className="p-1.5 text-blue-400 hover:text-blue-600 dark:hover:text-blue-400 rounded-md hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
                     <Pencil className="w-4 h-4" />
                   </button>
-                  <button 
-                    onClick={() => handleDelete(ing.id)}
-                    title="Eliminar ingrediente"
-                    className="p-1.5 text-red-400 hover:text-red-600 dark:hover:text-red-400 dark:text-red-500/70 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-                  >
+                  <button onClick={() => handleDelete(ing.id)} className="p-1.5 text-red-400 hover:text-red-600 dark:hover:text-red-400 rounded-md hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
@@ -354,49 +379,50 @@ function Pantry() {
         )}
       </div>
 
+      {/* MODAL DE AÑADIR/EDITAR INGREDIENTE (Adaptado a móvil) */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden transition-colors duration-200">
-            <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-gray-800">
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-[#111] border border-gray-200 dark:border-gray-800 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl transition-colors duration-200">
+            <div className="flex justify-between items-center p-5 md:p-6 border-b border-gray-200 dark:border-gray-800 sticky top-0 bg-white dark:bg-[#111] z-10">
+              <h3 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white">
                 {editingId ? 'Editar Ingrediente' : 'Añadir Ingrediente Manual'}
               </h3>
-              <button onClick={handleCloseModal} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+              <button onClick={handleCloseModal} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors bg-gray-100 dark:bg-gray-800 p-1 rounded-full">
                 <X className="w-5 h-5" />
               </button>
             </div>
-            <form onSubmit={handleSubmitIngredient} className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
+            <form onSubmit={handleSubmitIngredient} className="p-5 md:p-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre del ingrediente</label>
                   <input required type="text" name="name" value={newIngredient.name} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-md py-2 px-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
-                <div>
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Categoría</label>
                   <select name="category" value={newIngredient.category} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-md py-2 px-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
                     {FORM_CATEGORIES.map(cat => <option key={cat} value={cat}>{cat}</option>)}
                   </select>
                 </div>
-                <div>
+                <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Calorías (por 100g/ml)</label>
                   <input required type="number" min="0" name="calories" value={newIngredient.calories} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-md py-2 px-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
               </div>
-              <div className="grid grid-cols-3 gap-4 pt-2">
+              <div className="grid grid-cols-3 gap-2 sm:gap-4 pt-2">
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Proteínas (g)</label>
-                  <input required type="number" min="0" step="0.1" name="protein" value={newIngredient.protein} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-md py-2 px-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="block text-[10px] sm:text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Proteínas (g)</label>
+                  <input required type="number" min="0" step="0.1" name="protein" value={newIngredient.protein} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-md py-2 px-2 sm:px-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Carbos (g)</label>
-                  <input required type="number" min="0" step="0.1" name="carbs" value={newIngredient.carbs} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-md py-2 px-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="block text-[10px] sm:text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Carbos (g)</label>
+                  <input required type="number" min="0" step="0.1" name="carbs" value={newIngredient.carbs} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-md py-2 px-2 sm:px-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Grasas (g)</label>
-                  <input required type="number" min="0" step="0.1" name="fat" value={newIngredient.fat} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-md py-2 px-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <label className="block text-[10px] sm:text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Grasas (g)</label>
+                  <input required type="number" min="0" step="0.1" name="fat" value={newIngredient.fat} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-md py-2 px-2 sm:px-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock actual</label>
                   <input required type="number" min="0" name="quantityInStock" value={newIngredient.quantityInStock} onChange={handleInputChange} className="w-full bg-gray-50 dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-md py-2 px-3 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500" />
@@ -412,11 +438,11 @@ function Pantry() {
                   </select>
                 </div>
               </div>
-              <div className="flex justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-800 mt-6">
-                <button type="button" onClick={handleCloseModal} className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition">
+              <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200 dark:border-gray-800 mt-6">
+                <button type="button" onClick={handleCloseModal} className="w-full sm:w-auto px-4 py-3 sm:py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-[#1a1a1a] border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-50 dark:hover:bg-gray-800 transition">
                   Cancelar
                 </button>
-                <button type="submit" disabled={isSubmitting} className="flex items-center justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto flex items-center justify-center px-4 py-3 sm:py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition">
                   {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                   {editingId ? 'Actualizar Ingrediente' : 'Guardar Ingrediente'}
                 </button>
