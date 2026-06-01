@@ -16,6 +16,8 @@ const PORT = process.env.PORT || 3000;
 const dashboardRoutes = require('./routes/dashboardRoutes');
 const ingredientsRoutes = require('./routes/ingredientsRoutes');
 const pantryRoutes = require('./routes/pantryRoutes'); 
+const macroRoutes = require('./routes/macroRoutes');
+const trainerRoutes = require('./routes/trainerRoutes');
 
 
 app.use(cors()); 
@@ -33,6 +35,8 @@ app.get('/api/health', (req, res) => {
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/ingredients', ingredientsRoutes);
 app.use('/api/pantry', pantryRoutes); 
+app.use('/api/macros', macroRoutes);
+app.use('/api/trainer', trainerRoutes);
 
 
 async function startServer() {

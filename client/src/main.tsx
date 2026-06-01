@@ -6,6 +6,8 @@ import App from './App.tsx'
 import './index.css'
 import Dashboard from './pages/Dashboard.tsx'
 import Pantry from './pages/Pantry.tsx' // <--- Importamos el componente de Despensa
+import MacroSolver from './pages/MacroSolver.tsx'
+import Entrenador from './pages/Entrenador';
 
 // Configuración profesional de rutas (Req #5 Organización)
 const router = createBrowserRouter([
@@ -20,6 +22,16 @@ const router = createBrowserRouter([
       {
         path: "pantry", // <--- Definimos la ruta /pantry Req #10 Parity Verified
         element: <Pantry />, // <--- Que cargue el componente Pantry
+      },
+
+      {
+      path: "macrosolver",
+      element: <MacroSolver />,
+      },
+
+      {
+      path: "entrenador",
+      element: <Entrenador />,
       },
     ],
   },

@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
+const ingredientController = require('../controllers/ingredientsController');
 
-const ingredientsController = require('../controllers/ingredientsController');
+// Rutas GET (Leer) y POST (Crear)
+router.get('/', ingredientController.getAllIngredients);
+router.post('/', ingredientController.createIngredient);
 
-// GET para listar
-router.get('/', ingredientsController.getAllIngredients);
-
-// POST para crear (delegamos la lógica al controlador)
-router.post('/', ingredientsController.createIngredient);
+// NUEVAS RUTAS: PUT (Actualizar) y DELETE (Borrar)
+router.put('/:id', ingredientController.updateIngredient);
+router.delete('/:id', ingredientController.deleteIngredient);
 
 module.exports = router;
