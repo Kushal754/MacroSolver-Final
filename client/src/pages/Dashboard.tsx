@@ -29,7 +29,8 @@ function Dashboard() {
     const fetchIngredients = async () => {
       try {
         console.log('📡 Frontend: Conectando con SQLite para obtener el inventario...');
-        const response = await fetch('http://localhost:3000/api/ingredients');
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+        const response = await fetch(`${API_URL}/ingredients`);
         
         if (!response.ok) throw new Error('Error en la conexión a la base de datos');
         

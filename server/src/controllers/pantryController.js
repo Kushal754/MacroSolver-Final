@@ -3,18 +3,15 @@ const fs = require('fs');
 const path = require('path');
 const OpenAI = require('openai'); // Importación directa de la librería
 
-
 const openai = new OpenAI({
   baseURL: "https://models.inference.ai.azure.com",
   apiKey: process.env.OPENAI_API_KEY
 });
 
-
 exports.scanPantryImage = async (req, res) => {
   try {
     console.log('📡 Backend: Petición POST /api/pantry/scan recibida...');
 
-    // 1. Verificación de seguridad: ¿Hay archivo? (Req #6 Limpieza)
     if (!req.file) {
       return res.status(400).json({ status: 'error', message: 'No se ha subido ninguna imagen.' });
     }
@@ -22,13 +19,10 @@ exports.scanPantryImage = async (req, res) => {
     const imagePath = req.file.path;
     console.log(`📸 Imagen recibida y guardada en: ${imagePath}`);
 
-    // 2. Convertir la imagen a Base64 (Requisito para enviar imágenes a modelos de visión)
     const imageBuffer = fs.readFileSync(imagePath);
     const base64Image = imageBuffer.toString('base64');
     const mediaType = req.file.mimetype; // ej: image/jpeg
 
-    // 3. LLAMADA REAL A LA IA A TRAVÉS DE GITHUB MODELS
-    // Definimos el modelo que queremos usar del catálogo de GitHub.
     const MODEL_NAME = "gpt-4o"; 
 
     console.log(`🧠 Iniciando análisis con IA Real (${MODEL_NAME}) a través de GitHub Models...`);
@@ -59,9 +53,17 @@ exports.scanPantryImage = async (req, res) => {
 
     console.log('✅ Análisis de IA completado.');
 
-    // 4. Procesar la respuesta de la IA
+    // --- AQUÍ EMPIEZA LA LÓGICA NUEVA (EL CHIVATO Y EL BLINDAJE) ---
+    console.log("📦 PAQUETE COMPLETO DE LA IA:\n", JSON.stringify(response, null, 2));
+
     const aiAnalysisRaw = response.choices[0].message.content;
+    const finishReason = response.choices[0].finish_reason;
     
+    if (aiAnalysisRaw === null) {
+        throw new Error(`La IA devolvió null. Motivo de parada (finish_reason): ${finishReason}`);
+    }
+    // --- FIN DE LA LÓGICA NUEVA ---
+
     // La respuesta de la IA debe ser un JSON estricto según nuestro prompt.
     let detectedIngredients = [];
     try {
@@ -78,31 +80,28 @@ exports.scanPantryImage = async (req, res) => {
         throw new Error("Error al procesar los datos de la IA. La respuesta no era el JSON esperado.");
     }
 
-    // 5. Limpieza profesional: Borrar la imagen temporal (Req #6 Organización)
     fs.unlinkSync(imagePath); 
     console.log('🗑️ Imagen temporal borrada.');
 
-    // 6. Enviar la respuesta profesional (Req #4 Connection)
-    // Devolvemos los ingredientes detectados y la ruta de la imagen (aunque ya la hayamos borrado, el front la necesita para su lógica visual).
+    // Devolvemos los ingredientes detectados y la ruta de la imagen
     res.json({
       status: 'success',
       message: 'Imagen analizada correctamente por la IA.',
-      imagePath: `/uploads/${req.file.filename}`, // Esta ruta es para el front, aunque el archivo ya no exista.
-      ingredients: detectedIngredients // Los datos reales para las flashcards (Req #10 Parity)
+      imagePath: `/uploads/${req.file.filename}`, 
+      ingredients: detectedIngredients 
     });
 
   } catch (error) {
-    console.error('❌ Backend Error en el escáner:', error);
+    console.error('❌ Backend Error en el escáner:', error.message || error);
     
     // Limpieza si hubo error: intentar borrar la imagen si existe
     if (req.file && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
     }
 
-    // Req #11 moderno: Manejo profesional de errores visibles
     res.status(500).json({ 
       status: 'error', 
-      message: 'Critical error during image analysis with the IA.' 
+      message: error.message || 'Error crítico durante el análisis de la imagen.' 
     });
   }
 };

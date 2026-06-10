@@ -1,4 +1,6 @@
-import { createContext, useState, useEffect, ReactNode, useContext } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import { createContext, useState, useEffect, useContext } from 'react';
+import type { ReactNode } from 'react';
 
 // Tipamos nuestro contexto
 interface ThemeContextType {

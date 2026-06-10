@@ -1,5 +1,4 @@
 import { useTheme } from '../../context/ThemeContext';
-import type { ReactNode } from 'react'; 
 import { Link, useLocation, Outlet } from 'react-router-dom';
 
 import { 
@@ -14,10 +13,6 @@ import {
   Zap
 } from 'lucide-react';
 
-interface LayoutProps {
-  children: ReactNode;
-  currentPageTitle?: string; // Lo dejamos opcional por si el router lo envía
-}
 
 function Layout() {
   

@@ -142,7 +142,9 @@ function Pantry() {
       formData.append('image', file);
 
       // El escáner interactúa de forma limpia con la subida de archivos multipart
-      const response = await fetch('http://localhost:3000/api/pantry/scan', { method: 'POST', body: formData });
+      const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+      const response = await fetch(`${API_URL}/pantry/scan`, { method: 'POST', body: formData });
+      
       if (!response.ok) throw new Error('Error en el escáner');
       
       const data = await response.json();

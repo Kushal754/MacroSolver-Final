@@ -1,24 +1,23 @@
-// 1. Importamos la conexión profesional a la DB
-const sequelize = require('./config/db');
-// 2. Importamos los modelos profesionales que ya funcionan profesionalmente (Req #5/8)
-const User = require('./models/User');
-const Ingredient = require('./models/Ingredient'); // Añadimos Ingredient profesional Req #5
 
-// 3. Función principal de siembra asíncrona profesional
+const sequelize = require('./config/db');
+
+const User = require('./models/User');
+const Ingredient = require('./models/Ingredient'); 
+
+
 const seedDatabase = async () => {
   try {
     console.log('🌱 Empezando la siembra de datos profesional (seeding)...');
 
-    // 4. Sincronizamos profesionalmente (alter: true para no borrar todo si ya existe profesionalmente, Req #8 dynamic data parity verified)
+    
     await sequelize.sync({ alter: true });
     console.log('✅ Modelos sincronizados con la base de datos (Req #3, #5, #8 dynamic data parity verified)');
 
-    // --- GRUPO 1: USUARIOS (Req #6 Limpieza/Tipado) ---
-    // 5. Borramos usuarios existentes profesionalmente para empezar de cero profesionalmente (limpieza profesional Req #6 Organización)
+    
     await User.destroy({ where: {} });
     console.log('🔄 Tabla Users limpiada profesionalmente.');
 
-    // 6. Definimos los datos profesionales idénticos a v0 (Dashboard profesional recent users parity verified image_18.png)
+    
     const v0UsersData = [
       { name: 'Alba García', email: 'alba.garcia@macrosolver.com', joinedDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), macrosMetPercentage: 85 },
       { name: 'Javier Pérez', email: 'javier.perez@macrosolver.com', joinedDate: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000), macrosMetPercentage: 92 },
@@ -59,10 +58,10 @@ const seedDatabase = async () => {
 
   } catch (error) {
     console.error('❌ Backend Error sembrando la base de datos profesional:', error);
-    // 12. Cerramos con error profesional
+    
     process.exit(1); 
   }
 };
 
-// 13. Ejecutamos la función profesional
+
 seedDatabase();

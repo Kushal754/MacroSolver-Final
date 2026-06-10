@@ -56,7 +56,8 @@ function MacroSolver() {
   useEffect(() => {
     const fetchIngredients = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/ingredients');
+        const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+        const response = await fetch(`${API_URL}/ingredients`);
         if (response.ok) {
           const data = await response.json();
           setIngredients(data);
