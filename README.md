@@ -10,7 +10,7 @@ Toda la planificación y organización del desarrollo de este proyecto se ha ges
 
 ## 🚀 Despliegue
 
-- **Frontend (Vercel):** [https://macro-solver-final.vercel.app/]
+- **Frontend (Vercel):** [https://macro-solver-final-90bcr9699-kushal754s-projects.vercel.app/]
 - **Backend (Render):** https://macrosolver-final-1.onrender.com
 
 ---
